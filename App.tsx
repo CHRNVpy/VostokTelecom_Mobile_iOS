@@ -1,118 +1,96 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, {useState, useRef, useEffect, useCallback} from 'react';
+import {View, Image, Text, Dimensions} from 'react-native';
+import {WebView} from 'react-native-webview';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const webViewRef = useRef<WebView>(null);
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+  const handleReload = useCallback(() => {
+    if (!webViewRef.current) return;
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+    setIsLoading(true); // Начало загрузки после перезагрузки
+    setIsError(false); // Сброс флага ошибки перед перезагрузкой
+    webViewRef.current.reload(); // Перезагрузка WebView
+  }, [webViewRef]);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+  const handleError = useCallback(() => {
+    setIsLoading(false); // Завершение загрузки из-за ошибки
+    setIsError(true); // Установка флага ошибки
+  }, []);
 
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const handleLoadEnd = useCallback(() => {
+    setTimeout(() => {
+      setIsLoading(false); // Завершение загрузки
+    }, 500);
+  }, []);
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  useEffect(() => {
+    if (!isError) return;
+
+    const timer = setTimeout(() => {
+      handleReload(); // Повторная загрузка через 10 секунд после ошибки
+    }, 3000); // 3 секунд
+    return () => clearTimeout(timer); // Очищаем таймер при размонтировании компонента
+  }, [isError]);
+
+  const {width: screenWidth} = Dimensions.get('window');
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
+    <View style={{flex: 1}}>
+      <WebView
+        ref={webViewRef}
+        onLoad={handleLoadEnd}
+        onError={handleError}
+        source={{uri: 'https://mobile.vt54.ru/'}}
+        renderError={() => (
+          <View
+            style={{
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: '#001E36',
+              position: 'absolute',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <Image
+              source={require('./assets/logo/logo.png')}
+              style={{
+                width: screenWidth * 0.7,
+                height: (296 / 933) * screenWidth * 0.7,
+              }}
+            />
+          </View>
+        )}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
+      {!!(isLoading || isError) && (
         <View
           style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: '#001E36',
+            position: 'absolute',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+          <Image
+            source={require('./assets/logo/logo.png')}
+            style={{
+              width: screenWidth * 0.7,
+              height: (296 / 933) * screenWidth * 0.7,
+            }}
+          />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      )}
+    </View>
   );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+};
 
 export default App;
