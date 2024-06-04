@@ -1,4 +1,12 @@
 {
-  "name": "vostoktelecomwrapper",
-  "displayName": "vostoktelecomwrapper"
+  "name": "vostoktelecomreactnative",
+  "slug": "vostoktelecomreactnative",
+  "version": "1.0.0",
+  "platforms": ["ios"],
+  "ios": {
+    "bundleIdentifier": "vostoktelecomreactnative.bundle.identifier",
+    "config": {
+      "usesNonExemptEncryption": false
+    }
+  }
 }
