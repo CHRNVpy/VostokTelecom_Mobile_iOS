@@ -1,5 +1,5 @@
 import React, {useState, useRef, useEffect, useCallback} from 'react';
-import {View, Image, Text, Dimensions} from 'react-native';
+import {View, Image, SafeAreaView, Dimensions} from 'react-native';
 import {WebView} from 'react-native-webview';
 
 const App = () => {
@@ -38,7 +38,7 @@ const App = () => {
   const {width: screenWidth} = Dimensions.get('window');
 
   return (
-    <View style={{flex: 1}}>
+    <SafeAreaView style={{flex: 1}}>
       <WebView
         ref={webViewRef}
         onLoad={handleLoadEnd}
@@ -89,7 +89,7 @@ const App = () => {
           />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 };
 
